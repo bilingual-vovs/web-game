@@ -2,6 +2,7 @@
 let cursors;
 let player;
 
+
 class School extends Phaser.Scene
 {
     constructor ()
@@ -12,8 +13,8 @@ class School extends Phaser.Scene
     preload ()
     {
         this.load.image('school', './assets/School-scene.webp')
-        this.load.spritesheet('dude', './assets/Dude2.png', {
-            frameWidth: 576/9, frameHeight: 256/4
+        this.load.spritesheet('goltsov', './assets/Sasha_anim.png', {
+            frameWidth: 256, frameHeight: 512
         })
         
         
@@ -24,34 +25,23 @@ class School extends Phaser.Scene
         this.add.image(400, 400, 'school')
         this.add
 
-        player = this.physics.add.sprite(100, 100, 'dude')
+        player = this.physics.add.sprite(100, 100, 'goltsov')
         player.setBounce(0.2)
         player.setCollideWorldBounds(true)
+        player.scaleX = (0.3)
+        player.scaleY = (0.3)
+        console.log(player)
 
         this.anims.create({
             key: 'left', 
-            frames: this.anims.generateFrameNumbers('dude', {start: 9, end: 17}), 
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('goltsov', {start: 0, end: 5}), 
+            frameRate: 6,
             repeat: -1
         })
         this.anims.create({
             key: 'right', 
-            frames: this.anims.generateFrameNumbers('dude', {start: 27, end: 35}), 
-            frameRate: 10,
-            repeat: -1
-        })
-
-        this.anims.create({
-            key: 'up', 
-            frames: this.anims.generateFrameNumbers('dude', {start: 0, end: 8}), 
-            frameRate: 10,
-            repeat: -1
-        })
-
-        this.anims.create({
-            key: 'down', 
-            frames: this.anims.generateFrameNumbers('dude', {start: 18, end: 26}), 
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('goltsov', {start: 6, end: 11}), 
+            frameRate: 6,
             repeat: -1
         })
 
@@ -60,29 +50,33 @@ class School extends Phaser.Scene
     }
     update(){
         if(cursors.left.isDown){
-            player.setVelocityY(0)
             player.setVelocityX(-160)
             player.anims.play("left", true)
+            player.lastAnim = "left"
         }
-        else if(cursors.right.isDown){
-            player.setVelocityY(0)
+        if(cursors.right.isDown){
             player.setVelocityX(160)
             player.anims.play("right", true)
+            player.lastAnim = "right"
         }
-        else if(cursors.up.isDown){
-            player.setVelocityX(0)
+        if(cursors.up.isDown){
             player.setVelocityY(-160)
-            player.anims.play("up", true)
+            player.anims.play(player.lastAnim, true)
         }
-        else if(cursors.down.isDown){
-            player.setVelocityX(0)
+        if(cursors.down.isDown){
             player.setVelocityY(160)
-            player.anims.play("down", true)
+            player.anims.play(player.lastAnim, true)
         }
-        else {
-            player.setVelocityX(0)
+        if(!(cursors.down.isDown || cursors.up.isDown)) {
             player.setVelocityY(0)
+        }
+        if (!(cursors.left.isDown || cursors.right.isDown)){
+            player.setVelocityX(0)
+        }
+        if (!(cursors.left.isDown || cursors.right.isDown || cursors.down.isDown || cursors.up.isDown)){
             player.anims.stop()
+            if (player.lastAnim == 'right'){
+            }
         }
     }
 }
