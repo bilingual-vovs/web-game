@@ -4,6 +4,8 @@ let player;
 let backgroud;
 
 
+
+
 class School extends Phaser.Scene
 {
     constructor ()
@@ -16,8 +18,8 @@ class School extends Phaser.Scene
         this.load.spritesheet('school', './assets/School-scene.webp', {
             frameWidth: 1000, frameHeight: 1000 
         })
-        this.load.spritesheet('goltsov', './assets/Sasha_anim.png', {
-            frameWidth: 256, frameHeight: 512
+        this.load.spritesheet('goltsov', './assets/goltsov.webp', {
+            frameWidth: 512, frameHeight: 512
         })
         
         
@@ -35,7 +37,42 @@ class School extends Phaser.Scene
         player.scaleX = (0.4)
         player.scaleY = (0.4)
 
+        player.timeStamp = new Date().getTime()
+        player.currentAnim = false
+        player.animSpeed = 30
+        player.frames = 0
+
+        player.playAnim = function () { 
+            if (!this.currentAnim) return 
+            const time = new Date().getTime()
+            if (time - this.timeStamp >= this.animSpeed){
+                if (this.currentAnim == 'left'){
+                    this.scaleX = -Math.abs(this.scaleX)
+                }
+                else { 
+                    this.scaleX = Math.abs(this.scaleX)
+                }
+                this.frames++
+                if (this.frames%30 <15){
+                    this.scaleY /= 0.994
+                    this.scaleX *= 0.98
+                }
+                else{
+                    this.scaleY *= 0.994
+                    this.scaleX /= 0.98
+                }
+                this.timeStamp = time
+            }
+        }
+        
+
         player.moveX = function(x) { 
+            if (x != Math.abs(x) && x != 0){
+                this.currentAnim = 'left'
+            }
+            else if (x != 0){
+                this.currentAnim = 'right'
+            }
             if (this.x > 300 && this.x < 500){
                 this.setVelocityX(x)
             }
@@ -55,6 +92,12 @@ class School extends Phaser.Scene
         }
 
         player.moveY = function(y) {
+            if (y != Math.abs(y) && !this.currentAnim && y != 0){
+                this.currentAnim = 'rigth'
+            }
+            else if (y == Math.abs(y) && !this.currentAnim && y != 0){
+                this.currentAnim = 'left'
+            }
             if (this.y > 300 && this.y < 500){
                 this.setVelocityY(y)
             }
@@ -73,32 +116,7 @@ class School extends Phaser.Scene
             if (!y) backgroud.setVelocityY(0)
         }
 
-        this.anims.create({
-            key: 'left', 
-            frames: this.anims.generateFrameNumbers('goltsov', {start: 0, end: 5}), 
-            frameRate: 5,
-            repeat: -1
-        })
-        this.anims.create({
-            key: 'right', 
-            frames: this.anims.generateFrameNumbers('goltsov', {start: 6, end: 11}), 
-            frameRate: 5,
-            repeat: -1
-        })
-
-        this.anims.create({
-            key: 'down', 
-            frames: this.anims.generateFrameNumbers('goltsov', {start: 13, end: 17}), 
-            frameRate: 5,
-            repeat: -1
-        })
-        this.anims.create({
-            key: 'up', 
-            frames: this.anims.generateFrameNumbers('goltsov', {start: 18, end: 22}), 
-            frameRate: 5,
-            repeat: -1
-        })
-
+        
 
         cursors = this.input.keyboard.createCursorKeys();
     }
@@ -106,38 +124,27 @@ class School extends Phaser.Scene
         if(!(cursors.down.isDown || cursors.up.isDown)) {
             player.moveY(0)
         }
+        else{
+            if(cursors.up.isDown){
+                player.moveY(-160)
+            }
+            else if(cursors.down.isDown){
+                player.moveY(160)
+            }
+        }
         if (!(cursors.left.isDown || cursors.right.isDown)){
             player.moveX(0)
-        }
-        if (!(cursors.left.isDown || cursors.right.isDown || cursors.down.isDown || cursors.up.isDown)){
-            player.anims.stop()
-            if (player.lastAnim == 'right'){
-            }
         }
         else{
             if(cursors.left.isDown){
                 player.moveX(-160)
-                if (!(cursors.up.isDown || cursors.down.isDown)) player.lastAnim = "left"
-                player.anims.play(player.lastAnim, true)
             }
             else if(cursors.right.isDown){
                 player.moveX(160)
-                if (!(cursors.up.isDown || cursors.down.isDown)) player.lastAnim = "right"
-                player.anims.play(player.lastAnim, true)
-            }
-            if(cursors.up.isDown){
-                player.moveY(-160)
-                if (!(cursors.left.isDown || cursors.right.isDown)) player.lastAnim = "up"
-                player.anims.play(player.lastAnim, true)
-            }
-            else if(cursors.down.isDown){
-                player.moveY(160)
-                if (!(cursors.left.isDown || cursors.right.isDown)) player.lastAnim = "down"
-                player.anims.play(player.lastAnim, true)
             }
         }
-        
-
+        if(!(cursors.left.isDown || cursors.right.isDown || cursors.down.isDown || cursors.up.isDown)) player.currentAnim = false
+        player.playAnim()
     }
 }
 
