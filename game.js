@@ -2,6 +2,73 @@
 let cursors;
 let player;
 let backgroud;
+let mobs = [];
+
+class Mob{
+    constructor (sprite){
+        this.sprite = sprite
+        this.sprite.scaleX = 0.5
+        this.sprite.scaleY = 0.5
+    }
+
+    moveX = (x) => { 
+        if (x != Math.abs(x) && x != 0){
+            this.currentAnim = 'left'
+        }
+        else if (x != 0){
+            this.currentAnim = 'right'
+        }
+        if (this.x > 300 && this.x < 500){
+            this.setVelocityX(x)
+            this.weapon.setVelocityX(x)
+        }
+        else if (this.x < 300 && x == Math.abs(x)){
+            this.setVelocityX(x)
+            this.weapon.setVelocityX(x)
+            backgroud.setVelocityX(0)
+        }
+        else if (this.x > 500 && x != Math.abs(x)){
+            this.setVelocityX(x)
+            this.weapon.setVelocityX(x)
+            backgroud.setVelocityX(0)
+        }
+        else{
+            this.setVelocityX(0)
+            this.weapon.setVelocityX(0)
+            backgroud.setVelocityX(-x)
+        }
+        if (!x) backgroud.setVelocityX(0)
+    }
+
+    moveY = (y) => {
+        if (y != Math.abs(y) && !this.currentAnim && y != 0){
+            this.currentAnim = 'rigth'
+        }
+        else if (y == Math.abs(y) && !this.currentAnim && y != 0){
+            this.currentAnim = 'left'
+        }
+        if (this.y > 300 && this.y < 500){
+            this.setVelocityY(y)
+            this.weapon.setVelocityY(y)
+        }
+        else if (this.y < 300 && y == Math.abs(y)){
+            this.setVelocityY(y)
+            this.weapon.setVelocityY(y)
+            backgroud.setVelocityY(0)
+        }
+        else if (this.y > 500 && y != Math.abs(y)){
+            this.setVelocityY(y)
+            this.weapon.setVelocityY(y)
+            backgroud.setVelocityY(0)
+        }
+        else{
+            this.setVelocityY(0)
+            this.weapon.setVelocityY(0)
+            backgroud.setVelocityY(-y)
+        }
+        if (!y) backgroud.setVelocityY(0)
+    }
+}
 
 
 
@@ -24,7 +91,9 @@ class School extends Phaser.Scene
         this.load.spritesheet('weapon', './assets/weapon.png', {
             frameWidth: 315, frameHeight: 250
         })
-        
+        this.load.spritesheet('eres', './assets/Nahriuk.png', {
+            frameWidth: 256, frameHeight: 256
+        })
     }
 
     create ()
@@ -56,12 +125,17 @@ class School extends Phaser.Scene
             player.direction = 'right'
         }
 
+        {
+            mobs.push(new Mob(this.physics.add.sprite(400, 400, 'eres')))
+            
+            
+        }
+
         player.attack = function () {
             if (player.attackAnim) return
             player.attackFrames = 0
             player.attackAnim = setInterval(()=>{
                 if (player.attackFrames >=12) {
-                    console.log(player.attackFrames)
                     clearInterval(player.attackAnim)
                     player.attackFrames = 0
                     player.attackAnim = setInterval(()=>{
